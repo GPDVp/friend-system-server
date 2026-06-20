@@ -1,0 +1,15 @@
+{
+  "name": "friend-system-server",
+  "version": "3.0.0",
+  "description": "Hardened Multiplayer Friend System WebSocket Server",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.14.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
