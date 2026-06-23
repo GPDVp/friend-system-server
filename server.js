@@ -1,25 +1,16 @@
 const WebSocket = require('ws');
 
-// ============================================================
-// ✅ سرور WebSocket با مسیر /ws
-// ============================================================
 const server = new WebSocket.Server({
     port: process.env.PORT || 10000,
     perMessageDeflate: true,
     maxPayload: 1048576,
     clientTracking: true,
-    path: '/ws'  // مسیر مشخص برای WebSocket
+    path: '/ws'
 });
 
-// ============================================================
-// ✅ داده‌های سرور
-// ============================================================
 const chatRooms = new Map();
 const players = new Map();
 
-// ============================================================
-// ✅ توابع کمکی
-// ============================================================
 function log(message, type = 'info') {
     const timestamp = new Date().toLocaleString('fa-IR');
     const emoji = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warn' ? '⚠️' : '📌';
@@ -44,24 +35,6 @@ function broadcastToRoom(roomId, message, excludeId = null) {
     }
 }
 
-function sendToPlayer(playerId, message) {
-    const player = players.get(playerId);
-    if (!player || !player.online) return false;
-    
-    try {
-        if (player.ws.readyState === WebSocket.OPEN) {
-            player.ws.send(JSON.stringify(message));
-            return true;
-        }
-    } catch (e) {
-        log(`Send failed: ${e.message}`, 'error');
-    }
-    return false;
-}
-
-// ============================================================
-// ✅ مدیریت اتصالات
-// ============================================================
 server.on('connection', (ws, req) => {
     const ip = req.socket.remoteAddress || '0.0.0.0';
     log(`New connection from ${ip}`, 'info');
@@ -106,6 +79,7 @@ server.on('connection', (ws, req) => {
                         }
                     }
                     
+                    // ✅ ذخیره اسم در سرور
                     players.set(player_id, {
                         ws: ws,
                         online: true,
@@ -210,6 +184,7 @@ server.on('connection', (ws, req) => {
                     
                     const timestamp = msg.timestamp || new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
                     
+                    // ✅ ارسال اسم به دیگران
                     broadcastToRoom(currentRoom, {
                         type: 'chat_message',
                         sender_id: player_id,
@@ -324,9 +299,6 @@ server.on('connection', (ws, req) => {
     });
 });
 
-// ============================================================
-// ✅ استارت سرور
-// ============================================================
 log(`Chat Server running on port ${process.env.PORT || 10000}`, 'success');
 log(`WebSocket ready at /ws`, 'success');
 log(`Waiting for connections...`, 'info');
